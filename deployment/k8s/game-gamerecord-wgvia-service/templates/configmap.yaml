@@ -12,8 +12,8 @@ data:
         "GameProvidersBaseUrl": "http://game-gameproviders"
       },
       "GameRecordInfo": {
-        "GameProviderCode": "WGFM",
-        "GameProviderConfiguration": "WGFMConfiguration",
+        "GameProviderCode": "WGVIA",
+        "GameProviderConfiguration": "WGVIAConfiguration",
         "IntervalDayMax": 30,
         "IntervalDay": 2
       }
