@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Tgs.ServiceUtility;
-using Tgs.GameRecord.WGViaGamingService.ViewModels;
 using Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices;
+using Tgs.GameRecord.WGViaGamingService.ViewModels;
+using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.WGViaGamingService.Controllers
 {

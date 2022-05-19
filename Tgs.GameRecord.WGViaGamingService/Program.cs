@@ -4,9 +4,9 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Tgs.GameRecord.WGViaGamingService;
 using Tgs.MessageQueue.MongoDB.Configuration;
 using MongoMessageQueue = MongoDB.Messaging.MessageQueue;
-using Tgs.GameRecord.WGViaGamingService;
 
 var builder = WebApplication.CreateBuilder(args);
 

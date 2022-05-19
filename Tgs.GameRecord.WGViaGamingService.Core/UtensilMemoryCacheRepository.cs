@@ -1,22 +1,20 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Tgs.GameProviders.Domains.SettingConfiguration;
 using Tgs.GameProviders.QueryServer.Models;
-using Tgs.GameRecord.WGViaGamingService.Core;
 
 namespace Tgs.GameRecord.WGViaGamingService.Core
 {
-    internal class WGViaGamingMemoryCacheRepository : IWGViaGaming
+    internal class UtensilMemoryCacheRepository : IUtensil
     {
         private readonly TimeSpan _absoluteExpirationRelativeToNow;
         private readonly GameRecordInfoOptions _gameRecordInfo;
-        private readonly IWGViaGaming _lEGaming;
+        private readonly IUtensil _lEGaming;
         private readonly IMemoryCache _memoryCache;
 
-        public WGViaGamingMemoryCacheRepository(
+        public UtensilMemoryCacheRepository(
             TimeSpan absoluteExpirationRelativeToNow,
             IOptions<GameRecordInfoOptions> options,
-            IWGViaGaming LEGaming,
+            IUtensil LEGaming,
             IMemoryCache memoryCache)
         {
             _absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;

@@ -1,9 +1,8 @@
-﻿using Tgs.GameProviders.Domains.SettingConfiguration;
-using Tgs.GameProviders.QueryServer.Models;
+﻿using Tgs.GameProviders.QueryServer.Models;
 
 namespace Tgs.GameRecord.WGViaGamingService.Core
 {
-    public interface IWGViaGaming
+    public interface IUtensil
     {
         ValueTask<Guid?> BrandGetGameProviderConfigurationIdAsync(Guid brandId, Guid gameProviderId);
 

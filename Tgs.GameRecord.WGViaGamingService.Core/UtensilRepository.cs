@@ -1,17 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
-using Tgs.GameProviders.Domains.SettingConfiguration;
 using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
-using Tgs.GameRecord.WGViaGamingService.Core;
 
 namespace Tgs.GameRecord.WGViaGamingService.Core
 {
-    internal class WGViaGamingRepository : IWGViaGaming
+    internal class UtensilRepository : IUtensil
     {
         private readonly IGameProvidersQueryServerClient _client;
         private readonly GameRecordInfoOptions _gameRecordInfo;
 
-        public WGViaGamingRepository(
+        public UtensilRepository(
             IGameProvidersQueryServerClient client,
             IOptions<GameRecordInfoOptions> options)
         {

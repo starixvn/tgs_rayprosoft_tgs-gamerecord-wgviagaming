@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 using Tgs.GameProviders.Client;
 using Tgs.GameProviders.QueryServer.Client;
-using Tgs.GameRecordSchedules.Client;
 using Tgs.GameRecord.WGViaGamingService.Core;
+using Tgs.GameRecordSchedules.Client;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class ServiceCollecitonExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGameRecordCore(
        this IServiceCollection services,
@@ -32,6 +32,6 @@ public static class ServiceCollecitonExtensions
         .AddGameRecordSchedulesClient(gameRecordSchedulesClientOptions)
         .AddGameProvidersClient(gameProvidersClientOptions)
         .AddScoped<ISystemClock, SystemClock>()
-        .AddTransient<IWGViaGaming, WGViaGamingRepository>()
-        .Decorate<IWGViaGaming>((innerRepository, sp) => ActivatorUtilities.CreateInstance<WGViaGamingMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
+        .AddTransient<IUtensil, UtensilRepository>()
+        .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
 }

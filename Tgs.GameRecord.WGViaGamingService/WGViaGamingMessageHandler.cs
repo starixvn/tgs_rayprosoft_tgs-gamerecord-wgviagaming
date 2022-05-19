@@ -1,9 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
-using Tgs.GameRecord.WGViaGamingService;
-using Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices;
 
 namespace Tgs.GameRecord.WGViaGamingService
 {

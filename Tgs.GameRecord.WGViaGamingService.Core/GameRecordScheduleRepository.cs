@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Options;
 using Tgs.GameRecordSchedules.Client;
 using Tgs.GameRecordSchedules.Protos;
-using Tgs.GameRecord.WGViaGamingService.Core;
-using System.Globalization;
 
 namespace Tgs.GameRecord.WGViaGamingService.Core
 {

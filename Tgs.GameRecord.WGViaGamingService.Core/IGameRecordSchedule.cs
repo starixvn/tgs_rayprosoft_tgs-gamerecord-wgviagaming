@@ -1,5 +1,4 @@
 ﻿using Tgs.GameRecordSchedules.Protos;
-using Tgs.GameRecord.WGViaGamingService.Core;
 
 namespace Tgs.GameRecord.WGViaGamingService.Core
 {
