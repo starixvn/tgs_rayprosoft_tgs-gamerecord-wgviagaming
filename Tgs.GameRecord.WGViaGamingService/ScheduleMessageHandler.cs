@@ -6,13 +6,13 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.WGViaGamingService
 {
-    internal class WGViaGamingMessageHandler : IMessageHandler
+    internal class ScheduleMessageHandler : IMessageHandler
     {
-        private readonly ILogger<WGViaGamingMessageHandler> _logger;
+        private readonly ILogger<ScheduleMessageHandler> _logger;
         private readonly ICommandService<JobWorkerCommand> _service;
 
-        public WGViaGamingMessageHandler(
-            ILogger<WGViaGamingMessageHandler> logger,
+        public ScheduleMessageHandler(
+            ILogger<ScheduleMessageHandler> logger,
             ICommandService<JobWorkerCommand> service
             )
         {
@@ -23,7 +23,7 @@ namespace Tgs.GameRecord.WGViaGamingService
         public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
             var json = Encoding.UTF8.GetString(data.Span);
-            var messageModel = JsonSerializer.Deserialize<WGViaGamingMessageModel>(json);
+            var messageModel = JsonSerializer.Deserialize<ScheduleMessageModel>(json);
 
             if (messageModel == null)
             {

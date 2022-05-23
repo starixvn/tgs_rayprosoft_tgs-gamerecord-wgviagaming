@@ -142,7 +142,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
                 Count = count,
                 SuccessCount = successCount,
                 FailCount = failCount,
-                LastGameRecorTime = lastGameRecordTime
+                LastGameRecordTime = lastGameRecordTime
             };
         }
     }
