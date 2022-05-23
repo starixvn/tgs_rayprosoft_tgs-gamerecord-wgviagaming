@@ -62,7 +62,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
             return await GetAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public async ValueTask<GameRecordScheduleReply?> UpdateAsync(GameRecordScheduleReply gameProviderSchedule, DateTimeOffset? lastGameRecorTime, DateTimeOffset sysTime, CancellationToken cancellationToken = default)
+        public async ValueTask<GameRecordScheduleReply?> UpdateAsync(GameRecordScheduleReply gameProviderSchedule, DateTimeOffset? lastGameRecordTime, DateTimeOffset sysTime, CancellationToken cancellationToken = default)
         {
             var config = GetConfig(gameProviderSchedule);
 
@@ -78,7 +78,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
                 config.EndTime = (endTime > sysTime) ? sysTime : endTime;
             }
 
-            config.LastGameRecordTime = lastGameRecorTime ?? config.LastGameRecordTime;
+            config.LastGameRecordTime = lastGameRecordTime ?? config.LastGameRecordTime;
 
             var request = new GameRecordScheduleUpdateRequest()
             {

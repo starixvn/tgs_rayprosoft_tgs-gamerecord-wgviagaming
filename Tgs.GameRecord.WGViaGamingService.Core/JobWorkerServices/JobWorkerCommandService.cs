@@ -55,7 +55,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices
                     }, cancellationToken).ConfigureAwait(false);
                     if (result.Success)
                     {
-                        gameProviderSchedule = await _gameRecordScheduleService.UpdateAsync(gameProviderSchedule, result.LastGameRecorTime, sysTime, cancellationToken).ConfigureAwait(false);
+                        gameProviderSchedule = await _gameRecordScheduleService.UpdateAsync(gameProviderSchedule, result.LastGameRecordTime, sysTime, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
