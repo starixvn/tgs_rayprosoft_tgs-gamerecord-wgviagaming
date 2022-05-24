@@ -35,7 +35,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
         {
             var count = 0;
             var successCount = 0;
-            var failCount = 0;
+            var failureCount = 0;
             var lastGameRecordTime = default(DateTimeOffset?);
             var page = 1;
             var rows = 1000;
@@ -97,7 +97,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
                     }
                     else
                     {
-                        failCount++;
+                        failureCount++;
                     }
 
                     var messageRequest = new GameRoundMessageRequest()
@@ -141,7 +141,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
                 Success = true,
                 Count = count,
                 SuccessCount = successCount,
-                FailCount = failCount,
+                FailureCount = failureCount,
                 LastGameRecordTime = lastGameRecordTime
             };
         }
