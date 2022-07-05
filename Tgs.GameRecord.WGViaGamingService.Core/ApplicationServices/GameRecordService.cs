@@ -42,10 +42,11 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
             while (true)
             {
                 var response = await _client.WGHorseGameRecordListAsync(
-                    query.StartTime,
-                    query.EndTime,
-                    page,
-                    rows).ConfigureAwait(false);
+                    startTime: query.StartTime,
+                    endTime: query.EndTime,
+                    page: page,
+                    rows: rows,
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 if (response == null || !response.Success)
                 {
@@ -55,19 +56,16 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices
                     };
                 }
 
-                if (response.Success && response.Datas == null)
-                {
-                    break;
-                }
+                var datas = response.Datas ?? Enumerable.Empty<GameRecordModle>();
 
-                if (response.Datas!.Length == 0)
+                if (!datas.Any())
                 {
                     break;
                 }
 
                 page++;
 
-                foreach (var data in response.Datas)
+                foreach (var data in datas)
                 {
                     count++;
 

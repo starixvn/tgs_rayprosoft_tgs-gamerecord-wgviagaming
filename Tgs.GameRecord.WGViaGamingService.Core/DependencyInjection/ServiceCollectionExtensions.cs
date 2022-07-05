@@ -33,5 +33,5 @@ public static class ServiceCollectionExtensions
         .AddGameProvidersClient(gameProvidersClientOptions)
         .AddScoped<ISystemClock, SystemClock>()
         .AddTransient<IUtensil, UtensilRepository>()
-        .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
+        .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository));
 }

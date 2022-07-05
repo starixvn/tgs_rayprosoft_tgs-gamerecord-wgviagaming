@@ -8,17 +8,16 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
     {
         private readonly TimeSpan _absoluteExpirationRelativeToNow;
         private readonly GameRecordInfoOptions _gameRecordInfo;
-        private readonly IUtensil _lEGaming;
+        private readonly IUtensil _utensil;
         private readonly IMemoryCache _memoryCache;
 
         public UtensilMemoryCacheRepository(
-            TimeSpan absoluteExpirationRelativeToNow,
             IOptions<GameRecordInfoOptions> options,
-            IUtensil LEGaming,
+            IUtensil utensil,
             IMemoryCache memoryCache)
         {
-            _absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
-            _lEGaming = LEGaming ?? throw new ArgumentNullException(nameof(LEGaming));
+            _absoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+            _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
             _gameRecordInfo = options.Value;
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
@@ -28,7 +27,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
             var key = $"{_gameRecordInfo.GameProviderCode}:{brandId}:{gameProviderId}";
             if (!_memoryCache.TryGetValue(key, out Guid? gameProviderConfigurationId))
             {
-                gameProviderConfigurationId = await _lEGaming.BrandGetGameProviderConfigurationIdAsync(brandId, gameProviderId).ConfigureAwait(false);
+                gameProviderConfigurationId = await _utensil.BrandGetGameProviderConfigurationIdAsync(brandId, gameProviderId).ConfigureAwait(false);
 
                 if (gameProviderConfigurationId == null)
                 {
@@ -44,7 +43,7 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
             var key = $"{_gameRecordInfo.GameProviderCode}:{gameExternalId}";
             if (!_memoryCache.TryGetValue(key, out int? gameId))
             {
-                gameId = await _lEGaming.GetGameIdAsync(gameProviderId, gameExternalId).ConfigureAwait(false);
+                gameId = await _utensil.GetGameIdAsync(gameProviderId, gameExternalId).ConfigureAwait(false);
 
                 if (gameId.HasValue)
                 {
@@ -58,11 +57,11 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
         {
             if (!_memoryCache.TryGetValue(_gameRecordInfo.GameProviderCode, out Guid? gameProviderId))
             {
-                gameProviderId = await _lEGaming.GetGameProviderIdAsync().ConfigureAwait(false);
+                gameProviderId = await _utensil.GetGameProviderIdAsync().ConfigureAwait(false);
 
                 if (gameProviderId.HasValue)
                 {
-                    _ = _memoryCache.Set(_gameRecordInfo.GameProviderCode, gameProviderId, TimeSpan.FromDays(1));
+                    _ = _memoryCache.Set(_gameRecordInfo.GameProviderCode, gameProviderId, _absoluteExpirationRelativeToNow);
                 }
             }
             return gameProviderId!.Value;
@@ -73,13 +72,13 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
             var key = $"{_gameRecordInfo.GameProviderCode}:{playerCode}";
             if (!_memoryCache.TryGetValue(key, out PlayerModel? playerModel))
             {
-                playerModel = await _lEGaming.GetPlayerAsync(playerCode).ConfigureAwait(false);
+                playerModel = await _utensil.GetPlayerAsync(playerCode).ConfigureAwait(false);
 
                 if (playerModel == null)
                 {
                     return null;
                 }
-                _ = _memoryCache.Set(key, playerModel, TimeSpan.FromDays(1));
+                _ = _memoryCache.Set(key, playerModel, _absoluteExpirationRelativeToNow);
             }
             return playerModel;
         }
