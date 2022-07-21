@@ -10,7 +10,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Scrutor" Version="4.2.0" />
 		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.41" />
-		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.13" />
+		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.14" />
 		<PackageReference Include="Tgs.GameRecordSchedules.Client" Version="0.0.5" />
 		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.6" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.1.0" />
