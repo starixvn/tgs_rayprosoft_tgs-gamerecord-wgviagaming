@@ -7,10 +7,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BuildConfiguration=Release
-RUN --mount=type=secret,id=nuget,dst=/pat cp /pat ~/.nuget/NuGet/NuGet.Config
-RUN dotnet nuget remove source 'Microsoft Visual Studio Offline Packages' || true
 WORKDIR /src
-COPY ["NuGet.config", "."]
+COPY ["nuget.config", "."]
 COPY ["Tgs.GameRecord.WGViaGamingService/Tgs.GameRecord.WGViaGamingService.csproj", "Tgs.GameRecord.WGViaGamingService/"]
 COPY ["Tgs.GameRecord.WGViaGamingService.Core/Tgs.GameRecord.WGViaGamingService.Core.csproj", "Tgs.GameRecord.WGViaGamingService.Core/"]
 RUN dotnet restore "Tgs.GameRecord.WGViaGamingService/Tgs.GameRecord.WGViaGamingService.csproj"
