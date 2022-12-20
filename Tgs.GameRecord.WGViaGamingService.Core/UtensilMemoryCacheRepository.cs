@@ -8,8 +8,8 @@ namespace Tgs.GameRecord.WGViaGamingService.Core
     {
         private readonly TimeSpan _absoluteExpirationRelativeToNow;
         private readonly GameRecordInfoOptions _gameRecordInfo;
-        private readonly IUtensil _utensil;
         private readonly IMemoryCache _memoryCache;
+        private readonly IUtensil _utensil;
 
         public UtensilMemoryCacheRepository(
             IOptions<GameRecordInfoOptions> options,
