@@ -1,9 +1,8 @@
-﻿namespace Tgs.GameRecord.WGViaGamingService.Core
+﻿namespace Tgs.GameRecord.WGViaGamingService.Core;
+
+public record ScheduleConfig
 {
-    public record ScheduleConfig
-    {
-        public DateTimeOffset StartTime { get; set; }
-        public DateTimeOffset EndTime { get; set; }
-        public DateTimeOffset LastGameRecordTime { get; set; }
-    }
+    public DateTimeOffset StartTime { get; set; }
+    public DateTimeOffset EndTime { get; set; }
+    public DateTimeOffset LastGameRecordTime { get; set; }
 }

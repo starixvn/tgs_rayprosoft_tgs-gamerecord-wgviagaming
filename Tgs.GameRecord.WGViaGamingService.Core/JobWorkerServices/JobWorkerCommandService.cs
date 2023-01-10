@@ -2,71 +2,78 @@
 using Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices;
 using Tgs.ServiceUtility;
 
-namespace Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices
+namespace Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices;
+
+internal class JobWorkerCommandService : ICommandService<JobWorkerCommand>
 {
-    internal class JobWorkerCommandService : ICommandService<JobWorkerCommand>
+    private readonly IGameRecordSchedule _gameRecordSchedule;
+    private readonly IGetService<GameRecordQuery, GameRecordResult> _getService;
+    private readonly ILogger<JobWorkerCommandService> _logger;
+    private readonly ISystemClock _systemClock;
+    private readonly IUtensil _utensil;
+
+    public JobWorkerCommandService(
+        IUtensil utensil,
+        IGameRecordSchedule gameRecordSchedule,
+        ISystemClock systemClock,
+        ILogger<JobWorkerCommandService> logger,
+        IGetService<GameRecordQuery, GameRecordResult> getService)
     {
-        private readonly IGameRecordSchedule _gameRecordSchedule;
-        private readonly IGetService<GameRecordQuery, GameRecordResult> _getService;
-        private readonly ILogger<JobWorkerCommandService> _logger;
-        private readonly ISystemClock _systemClock;
-        private readonly IUtensil _utensil;
+        _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
+        _gameRecordSchedule = gameRecordSchedule ?? throw new ArgumentNullException(nameof(gameRecordSchedule));
+        _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _getService = getService ?? throw new ArgumentNullException(nameof(getService));
+    }
 
-        public JobWorkerCommandService(
-            IUtensil utensil,
-            IGameRecordSchedule gameRecordSchedule,
-            ISystemClock systemClock,
-            ILogger<JobWorkerCommandService> logger,
-            IGetService<GameRecordQuery, GameRecordResult> getService)
+    public async ValueTask ExecuteAsync(JobWorkerCommand command, CancellationToken cancellationToken = default)
+    {
+        var gameProviderId = await _utensil
+            .GetGameProviderIdAsync(
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        try
         {
-            _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
-            _gameRecordSchedule = gameRecordSchedule ?? throw new ArgumentNullException(nameof(gameRecordSchedule));
-            _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _getService = getService ?? throw new ArgumentNullException(nameof(getService));
-        }
+            var sysTime = _systemClock.CurrentTime;
 
-        public async ValueTask ExecuteAsync(JobWorkerCommand command, CancellationToken cancellationToken = default)
-        {
-            var gameProviderId = await _utensil.GetGameProviderIdAsync().ConfigureAwait(false);
+            var schedule =
+                await _gameRecordSchedule
+                .GetAsync(
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+                ?? await _gameRecordSchedule
+                .InitAsync(
+                    gameProviderId: gameProviderId,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            try
+            while (schedule != null)
             {
-                var sysTime = _systemClock.CurrentTime;
-
-                var schedule =
-                    await _gameRecordSchedule.GetAsync(cancellationToken).ConfigureAwait(false)
-                        ?? await _gameRecordSchedule.InitAsync(
-                            gameProviderId,
-                            cancellationToken).ConfigureAwait(false);
-
-                while (schedule != null)
+                var config = _gameRecordSchedule.GetConfig(schedule);
+                if (config.EndTime >= sysTime)
                 {
-                    var config = _gameRecordSchedule.GetConfig(schedule);
-                    if (config.EndTime >= sysTime)
-                    {
-                        break;
-                    }
+                    break;
+                }
 
-                    var result = await _getService.GetAsync(new GameRecordQuery()
-                    {
-                        StartTime = config.StartTime,
-                        EndTime = config.EndTime
-                    }, cancellationToken).ConfigureAwait(false);
-                    if (result.Success)
-                    {
-                        schedule = await _gameRecordSchedule.UpdateAsync(schedule, result.LastGameRecordTime, sysTime, cancellationToken).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                var result = await _getService.GetAsync(new GameRecordQuery()
+                {
+                    StartTime = config.StartTime,
+                    EndTime = config.EndTime
+                }, cancellationToken).ConfigureAwait(false);
+                if (result.Success)
+                {
+                    schedule = await _gameRecordSchedule.UpdateAsync(schedule, result.LastGameRecordTime, sysTime, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    break;
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"發生例外");
-            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"發生例外");
         }
     }
 }

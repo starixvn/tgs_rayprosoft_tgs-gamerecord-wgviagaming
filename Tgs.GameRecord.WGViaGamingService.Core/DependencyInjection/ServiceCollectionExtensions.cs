@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
+using Tgs.GameCommand.Client;
 using Tgs.GameProviders.Client;
-using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameRecord.WGViaGamingService.Core;
 using Tgs.GameRecordSchedules.Client;
 
@@ -10,28 +10,26 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGameRecordCore(
        this IServiceCollection services,
-       Action<GameRecordInfoOptions, IServiceProvider> configure,
-       Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions,
+       Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
+       Action<MongoSettingOptions, IServiceProvider> mongoSettingOptions,
+       Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
        Action<GameRecordSchedulesClientOptions, IServiceProvider> gameRecordSchedulesClientOptions,
        Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions)
         => services
         .AddOptions<GameRecordInfoOptions>()
-        .Configure(configure)
+        .Configure(gameRecordInfoOptions)
+        .Services
+        .AddOptions<MongoSettingOptions>()
+        .Configure(mongoSettingOptions)
         .Services
         .RegisterAllServiceUtilityTypes(
             Assembly.GetExecutingAssembly(),
             ServiceLifetime.Transient)
-        .Scan(scan =>
-        {
-            _ = scan.FromCallingAssembly()
-            .AddClasses(classes => classes.Where(t => t.Name.EndsWith("repository", StringComparison.OrdinalIgnoreCase)))
-            .AsImplementedInterfaces()
-            .WithTransientLifetime();
-        })
-        .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
+        .AddMemoryCache()
+        .AddGameCommandClient(gameCommandClientOptions)
         .AddGameRecordSchedulesClient(gameRecordSchedulesClientOptions)
         .AddGameProvidersClient(gameProvidersClientOptions)
         .AddScoped<ISystemClock, SystemClock>()
-        .AddTransient<IUtensil, UtensilRepository>()
-        .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository));
+        .AddScoped<IGameRecordSchedule, GameRecordScheduleRepository>()
+        .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)));
 }

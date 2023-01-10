@@ -1,8 +1,7 @@
-﻿namespace Tgs.GameRecord.WGViaGamingService
+﻿namespace Tgs.GameRecord.WGViaGamingService;
+
+public record ScheduleMessageModel
 {
-    public record ScheduleMessageModel
-    {
-        public string GameProviderCode { get; init; } = default!;
-        public DateTimeOffset SendDateTime { get; init; }
-    }
+    public string GameProviderCode { get; init; } = default!;
+    public DateTimeOffset SendDateTime { get; init; }
 }
