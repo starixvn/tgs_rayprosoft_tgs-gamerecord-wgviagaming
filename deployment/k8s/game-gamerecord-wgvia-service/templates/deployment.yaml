@@ -52,10 +52,6 @@ spec:
               name: appsettings
               readOnly: true
               subPath: appsettings.json
-            - mountPath: /etc/ssl/certs/rds-combined-ca-bundle.pem
-              name: rds-combined-ca-bundle
-              readOnly: true
-              subPath: rds-combined-ca-bundle.pem
           ports:
             - name: http
               containerPort: 80
