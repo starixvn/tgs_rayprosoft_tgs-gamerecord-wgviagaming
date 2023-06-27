@@ -11,22 +11,20 @@ public class WGViaGamingController : ControllerBase
 {
     [HttpPost]
     public async ValueTask<GameRecordResultViewModel> GameRecordAsync(
-        [FromServices] IGetService<GameRecordQuery, GameRecordResult> service,
+        [FromServices] ICommandService<PullRecordCommand> service,
         GameRecordQueryViewModel model)
     {
-        var result = await service.GetAsync(new GameRecordQuery()
-        {
-            StartTime = model.StartTime,
-            EndTime = model.EndTime
-        }).ConfigureAwait(false);
+        await service
+            .ExecuteAsync(
+            command: new PullRecordCommand(
+                StartTime: model.StartTime,
+                EndTime: model.EndTime),
+            cancellationToken: HttpContext.RequestAborted)
+            .ConfigureAwait(false);
 
         return new GameRecordResultViewModel()
         {
-            Success = result.Success,
-            LastGameRecordTime = result.LastGameRecordTime,
-            SuccessCount = result.SuccessCount,
-            FailureCount = result.FailureCount,
-            Count = result.Count,
+            Success = true
         };
     }
 }

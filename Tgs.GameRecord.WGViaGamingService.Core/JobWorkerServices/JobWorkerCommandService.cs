@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Options;
 using Tgs.GameRecord.WGViaGamingService.Core.ApplicationServices;
 using Tgs.ServiceUtility;
 
@@ -6,74 +6,35 @@ namespace Tgs.GameRecord.WGViaGamingService.Core.JobWorkerServices;
 
 internal class JobWorkerCommandService : ICommandService<JobWorkerCommand>
 {
-    private readonly IGameRecordSchedule _gameRecordSchedule;
-    private readonly IGetService<GameRecordQuery, GameRecordResult> _getService;
-    private readonly ILogger<JobWorkerCommandService> _logger;
-    private readonly ISystemClock _systemClock;
-    private readonly IUtensil _utensil;
+    private readonly GameRecordInfoOptions _gameRecordInfoOptions;
+    private readonly double _intervalDays;
+    private readonly ICommandService<PullRecordCommand> _service;
 
     public JobWorkerCommandService(
-        IUtensil utensil,
-        IGameRecordSchedule gameRecordSchedule,
-        ISystemClock systemClock,
-        ILogger<JobWorkerCommandService> logger,
-        IGetService<GameRecordQuery, GameRecordResult> getService)
+        IOptions<GameRecordInfoOptions> options,
+        ICommandService<PullRecordCommand> service)
     {
-        _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
-        _gameRecordSchedule = gameRecordSchedule ?? throw new ArgumentNullException(nameof(gameRecordSchedule));
-        _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _getService = getService ?? throw new ArgumentNullException(nameof(getService));
+        _gameRecordInfoOptions = options.Value;
+        _service = service ?? throw new ArgumentNullException(nameof(service));
+        _intervalDays =
+            (_gameRecordInfoOptions.IntervalDaysMax < _gameRecordInfoOptions.IntervalDays)
+            ? _gameRecordInfoOptions.IntervalDaysMax
+            : (_gameRecordInfoOptions.IntervalDays < _gameRecordInfoOptions.IntervalDaysMinimum)
+            ? _gameRecordInfoOptions.IntervalDaysMinimum
+            : _gameRecordInfoOptions.IntervalDays;
     }
 
     public async ValueTask ExecuteAsync(JobWorkerCommand command, CancellationToken cancellationToken = default)
     {
-        var gameProviderId = await _utensil
-            .GetGameProviderIdAsync(
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\THH:mm:00K"), @"yyyy-MM-dd\THH:mm:ssK", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
+        var startTime = endTime.AddDays(_intervalDays * -1);
 
-        try
-        {
-            var sysTime = _systemClock.CurrentTime;
-
-            var schedule =
-                await _gameRecordSchedule
-                .GetAsync(
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false)
-                ?? await _gameRecordSchedule
-                .InitAsync(
-                    gameProviderId: gameProviderId,
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            while (schedule != null)
-            {
-                var config = _gameRecordSchedule.GetConfig(schedule);
-                if (config.EndTime >= sysTime)
-                {
-                    break;
-                }
-
-                var result = await _getService.GetAsync(new GameRecordQuery()
-                {
-                    StartTime = config.StartTime,
-                    EndTime = config.EndTime
-                }, cancellationToken).ConfigureAwait(false);
-                if (result.Success)
-                {
-                    schedule = await _gameRecordSchedule.UpdateAsync(schedule, result.LastGameRecordTime, sysTime, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"發生例外");
-        }
+        await _service
+          .ExecuteAsync(
+            command: new PullRecordCommand(
+                StartTime: startTime,
+                EndTime: endTime),
+            cancellationToken: cancellationToken)
+          .ConfigureAwait(false);
     }
 }
