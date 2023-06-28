@@ -70,8 +70,8 @@ builder
 
 builder.Services
     .AddMessageQueue()
-     .AddNatsMessageQueue(natsConfig =>
-     {
+    .AddNatsMessageQueue(natsConfig =>
+    {
          _ = natsConfig
          .ConfigQueueOptions((options, sp) =>
          {
@@ -80,7 +80,7 @@ builder.Services
          })
          .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.wgvia", "gp.gamerecord.schedule")
          .AddProcessor<ManualMessageHandler>("gp.gamerecord.manual.wgvia", "gp.gamerecord.manual");
-     })
+    })
     .ClearAllExchanges()
     .AddNatsGlobPatternExchange("*");
 

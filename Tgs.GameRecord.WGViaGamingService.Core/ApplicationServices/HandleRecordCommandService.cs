@@ -73,7 +73,7 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
                 status: (RoundStatus)command.Record.Status,
                 clientStatus: (RoundClientStatus)command.Record.ClientStatus,
                 externalCreatedOn: command.Record.ExternalCreatedOn!.Value,
-                externalClosedOn: command.Record.ExternalClosedOn,
+                externalClosedOn: command.Record.ExternalClosedOn??DateTimeOffset.UnixEpoch,
                 bet: command.Record.BetAmount.GetValueOrDefault(0),
                 validBet: command.Record.ValidBetAmount.GetValueOrDefault(0),
                 settle: command.Record.SettleAmount.GetValueOrDefault(0),
