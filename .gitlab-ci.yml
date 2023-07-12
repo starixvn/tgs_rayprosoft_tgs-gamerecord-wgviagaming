@@ -1,8 +1,8 @@
 variables:
-  ImageName: pgtgs/game-gamerecord-wgvia-service
-  TgsSettingKey: game-gamerecord-wgvia-service
-  HelmTemplateFolderName: game-gamerecord-wgvia-service
-  BuildCacheKey: Tgs.GameRecord.WGViaGamingService.$CI_PIPELINE_ID
+  ImageName: pgtgs/game-gamerecord-wgvia
+  TgsSettingKey: game-gamerecord-wgvia
+  HelmTemplateFolderName: game-gamerecord-wgvia
+  BuildCacheKey: Tgs.GameRecord.WGViaGaming.$CI_PIPELINE_ID
 
 default:
   before_script:
@@ -59,7 +59,7 @@ push-docker-image:
     untracked: true   
     policy: pull
   script:
-    - dotnet build "Tgs.GameRecord.WGViaGamingService/Tgs.GameRecord.WGViaGamingService.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:$Tag" --no-restore
+    - dotnet build "Tgs.GameRecord.WGViaGaming/Tgs.GameRecord.WGViaGaming.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:$Tag" --no-restore
     - docker push $ImageName:$Tag
 
 push-k8s-template:

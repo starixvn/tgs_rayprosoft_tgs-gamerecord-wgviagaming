@@ -1,0 +1,92 @@
+﻿using System.Runtime.InteropServices;
+using System.Text.Json.Nodes;
+using Hangfire;
+using Hangfire.Storage;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Tgs.GameCommand.Client;
+using Tgs.ServiceUtility;
+
+namespace Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
+
+internal class JobInitCommandService : ICommandService<JobInitCommand>
+{
+    private readonly ILogger<JobInitCommandService> _logger;
+    private readonly IGameCommandClient _client;
+    private readonly GameRecordInfoOptions _gameRecordInfo;
+    private readonly RecurringJobOptions _recurringJobOptions;
+
+    public JobInitCommandService(
+        ILogger<JobInitCommandService> logger,
+        IOptions<GameRecordInfoOptions> options,
+        IGameCommandClient client)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _gameRecordInfo = options.Value;
+        _client = client ?? throw new ArgumentNullException(nameof(client));
+        _recurringJobOptions = new RecurringJobOptions()
+        {
+            TimeZone = TimeZoneInfo.FindSystemTimeZoneById(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "China Standard Time" : "Asia/Shanghai")
+        };
+    }
+
+    public async ValueTask ExecuteAsync(JobInitCommand command, CancellationToken cancellationToken = default)
+    {
+        using (var connection = JobStorage.Current.GetConnection())
+        {
+            foreach (var recurringJob in connection.GetRecurringJobs())
+            {
+                RecurringJob.RemoveIfExists(recurringJob.Id);
+            }
+        }
+
+        try
+        {
+            var settingConfiguration = await _client
+                .SettingGetConfigurationStringAsync(
+                key: _gameRecordInfo.GameProviderConfiguration,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
+
+            var settingConfigurationJson = JsonNode.Parse(settingConfiguration)
+                ?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
+
+            var apiUrl = new Uri(
+                settingConfigurationJson["ApiUrl"]?.ToString()
+                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(ApiUrl)"));
+
+            var partnerCode = settingConfigurationJson["PartnerCode"]?.ToString()
+                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+
+            var partnerKey = settingConfigurationJson["PartnerKey"]?.ToString()
+                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerKey)");
+
+            var partneIV = settingConfigurationJson["IV"]?.ToString()
+                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(IV)");
+
+            var jobExecuteCommand = new JobExecuteCommand(
+               ApiUrl: apiUrl,
+               PartnerCode: partnerCode,
+               SecretKey: partnerKey,
+               SecretIV: partneIV);
+
+            RecurringJob.AddOrUpdate<IHangfireUtensil>(
+                recurringJobId: _gameRecordInfo.GameProviderConfiguration,
+                methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
+                cronExpression: "* */15 * * * *",
+                options: _recurringJobOptions);
+
+            //初始化強制第一次處理
+            _ = BackgroundJob.Enqueue<IHangfireUtensil>(service => service.JobExecuteAsync(jobExecuteCommand));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "LogOn:{logOn} Message:遊戲廠商初始化排程發生例外", DateTime.Now.ToString("o"));
+        }
+        finally
+        {
+            _ = BackgroundJob.Schedule<IHangfireUtensil>(service => service.JobCheckAsync(), TimeSpan.FromMinutes(1));
+        }
+    }
+}
