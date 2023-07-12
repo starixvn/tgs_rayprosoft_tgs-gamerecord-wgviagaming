@@ -37,7 +37,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: OTEL_SERVICE_NAME
-              value: Game-GameRecord-WGVAI({{ .Release.Namespace }})
+              value: Game-GameRecord-WGViaGaming({{ .Release.Namespace }})
             - name: NODE_IP
               valueFrom:
                 fieldRef:
