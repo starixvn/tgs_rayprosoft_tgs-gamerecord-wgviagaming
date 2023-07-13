@@ -74,7 +74,7 @@ internal class JobInitCommandService : ICommandService<JobInitCommand>
             RecurringJob.AddOrUpdate<IHangfireUtensil>(
                 recurringJobId: _gameRecordInfo.GameProviderConfiguration,
                 methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
-                cronExpression: "* */15 * * * *",
+                cronExpression: "*/15 * * * *",
                 options: _recurringJobOptions);
 
             //初始化強制第一次處理
