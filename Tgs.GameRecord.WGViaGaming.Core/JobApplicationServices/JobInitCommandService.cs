@@ -88,11 +88,11 @@ internal class JobInitCommandService : ICommandService<JobInitCommand>
 
                 var partnerKey = configurationDataJson["PartnerKey"]?.ToString()
                     ?? settingConfigurationJson["PartnerKey"]?.ToString()
-                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerKey)");
 
                 var partneIV = configurationDataJson["IV"]?.ToString()
                     ?? settingConfigurationJson["IV"]?.ToString()
-                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(IV)");
 
                 var jobExecuteCommand = new JobExecuteCommand(
                     ApiUrl: apiUrl,
