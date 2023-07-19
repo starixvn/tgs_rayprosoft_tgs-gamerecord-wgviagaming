@@ -5,6 +5,7 @@ using Hangfire.Storage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.GameCommand.Client;
+using Tgs.GameCommand.Common;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
@@ -52,33 +53,62 @@ internal class JobInitCommandService : ICommandService<JobInitCommand>
             var settingConfigurationJson = JsonNode.Parse(settingConfiguration)
                 ?? throw new Exception($"This game product setting does not exist.({_gameRecordInfo.GameProviderConfiguration})");
 
-            var apiUrl = new Uri(
-                settingConfigurationJson["ApiUrl"]?.ToString()
-                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(ApiUrl)"));
+            var gameProviderConfigs = await _client
+                .GameProviderConfigurationQueryAsync(
+                gameProviderCode: _gameRecordInfo.GameProviderCode,
+                cancellationToken: cancellationToken)
+                .ToArrayAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+                ?? Enumerable.Empty<GameProviderConfigInfo>();
 
-            var partnerCode = settingConfigurationJson["PartnerCode"]?.ToString()
-                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+            if (gameProviderConfigs == null || !gameProviderConfigs.Any())
+            {
+                return;
+            }
 
-            var partnerKey = settingConfigurationJson["PartnerKey"]?.ToString()
-                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerKey)");
+            var gameProviderAgentMapper = new Dictionary<string, JobExecuteCommand>();
 
-            var partneIV = settingConfigurationJson["IV"]?.ToString()
-                ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(IV)");
+            foreach (var gameProviderConfig in gameProviderConfigs)
+            {
+                if (string.IsNullOrWhiteSpace(gameProviderConfig.ConfigurationData) || gameProviderConfig.Status == GameProviderConfigStatus.Inactive)
+                {
+                    continue;
+                }
 
-            var jobExecuteCommand = new JobExecuteCommand(
-               ApiUrl: apiUrl,
-               PartnerCode: partnerCode,
-               SecretKey: partnerKey,
-               SecretIV: partneIV);
+                var configurationDataJson = JsonNode.Parse(gameProviderConfig.ConfigurationData)
+                    ?? throw new Exception($"Game Provider Configuration does not exist.({gameProviderConfig.GameProviderConfigId})");
 
-            RecurringJob.AddOrUpdate<IHangfireUtensil>(
-                recurringJobId: _gameRecordInfo.GameProviderConfiguration,
-                methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
-                cronExpression: "*/15 * * * *",
-                options: _recurringJobOptions);
+                var apiUrl = new Uri(configurationDataJson["ApiUrl"]?.ToString()
+                    ?? settingConfigurationJson["ApiUrl"]?.ToString()
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(ApiUrl)"));
 
-            //初始化強制第一次處理
-            _ = BackgroundJob.Enqueue<IHangfireUtensil>(service => service.JobExecuteAsync(jobExecuteCommand));
+                var partnerCode = configurationDataJson["PartnerCode"]?.ToString()
+                    ?? settingConfigurationJson["PartnerCode"]?.ToString()
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+
+                var partnerKey = configurationDataJson["PartnerKey"]?.ToString()
+                    ?? settingConfigurationJson["PartnerKey"]?.ToString()
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+
+                var partneIV = configurationDataJson["IV"]?.ToString()
+                    ?? settingConfigurationJson["IV"]?.ToString()
+                    ?? throw new Exception($"{_gameRecordInfo.GameProviderConfiguration} Required parameters(PartnerCode)");
+
+                var jobExecuteCommand = new JobExecuteCommand(
+                    ApiUrl: apiUrl,
+                    PartnerCode: partnerCode,
+                    SecretKey: partnerKey,
+                    SecretIV: partneIV);
+
+                RecurringJob.AddOrUpdate<IHangfireUtensil>(
+                    recurringJobId: _gameRecordInfo.GameProviderConfiguration,
+                    methodCall: service => service.JobExecuteAsync(jobExecuteCommand),
+                    cronExpression: "*/15 * * * *",
+                    options: _recurringJobOptions);
+
+                //初始化強制第一次處理
+                _ = BackgroundJob.Enqueue<IHangfireUtensil>(service => service.JobExecuteAsync(jobExecuteCommand));
+            }
         }
         catch (Exception ex)
         {
