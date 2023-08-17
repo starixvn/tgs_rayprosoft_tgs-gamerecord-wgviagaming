@@ -19,9 +19,8 @@ public static class ServiceCollectionExtensions
         .RegisterAllServiceUtilityTypes(
             Assembly.GetExecutingAssembly(),
             ServiceLifetime.Transient)
-        .AddGameRoundsWorkClient()
+        .AddGameRecordHandleClient()
         .AddGameCommandClient(gameCommandClientOptions)
         .AddGameInterfaceWGViaGamingClient(gameInterfaceWGViaGamingClientOptions)
-        .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)))
         .AddTransient<IHangfireUtensil, HangfireUtensil>();
 }

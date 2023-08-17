@@ -1,7 +1,4 @@
-﻿using Hangfire;
-using Hangfire.Storage;
-using Microsoft.Extensions.Logging;
-using Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
+﻿using Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.WGViaGaming.Core;
@@ -25,8 +22,10 @@ internal class HangfireUtensil : IHangfireUtensil
 
     public Task JobCheckAsync()
         => _jobCheckService.ExecuteAsync(new()).AsTask();
+
     public Task JobExecuteAsync(JobExecuteCommand source)
         => _jobExecuteService.ExecuteAsync(source).AsTask();
+
     public Task JobInitAsync()
         => _jobInitservice.ExecuteAsync(new()).AsTask();
 }

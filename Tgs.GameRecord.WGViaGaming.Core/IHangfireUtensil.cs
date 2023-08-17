@@ -4,7 +4,9 @@ namespace Tgs.GameRecord.WGViaGaming.Core;
 
 public interface IHangfireUtensil
 {
-    public Task JobExecuteAsync(JobExecuteCommand source);
     public Task JobCheckAsync();
+
+    public Task JobExecuteAsync(JobExecuteCommand source);
+
     public Task JobInitAsync();
 }

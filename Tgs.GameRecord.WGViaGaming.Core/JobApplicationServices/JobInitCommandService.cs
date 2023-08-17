@@ -12,9 +12,9 @@ namespace Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
 
 internal class JobInitCommandService : ICommandService<JobInitCommand>
 {
-    private readonly ILogger<JobInitCommandService> _logger;
     private readonly IGameCommandClient _client;
     private readonly GameRecordInfoOptions _gameRecordInfo;
+    private readonly ILogger<JobInitCommandService> _logger;
     private readonly RecurringJobOptions _recurringJobOptions;
 
     public JobInitCommandService(

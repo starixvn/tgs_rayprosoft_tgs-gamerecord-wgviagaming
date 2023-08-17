@@ -30,7 +30,6 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
             : _gameRecordInfo.IntervalDays;
     }
 
-
     public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
     {
         var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\T00:00:00K"), @"yyyy-MM-dd\T00:00:00K", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);

@@ -147,7 +147,6 @@ var app = builder.Build();
 _ = app.UseSwagger();
 _ = app.UseSwaggerUI();
 
-
 app.UseHangfireDashboard(
     "/hangfire",
     new DashboardOptions()
