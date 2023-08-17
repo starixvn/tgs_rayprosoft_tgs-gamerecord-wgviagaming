@@ -102,8 +102,8 @@ builder.Services
             var configuration = sp.GetRequiredService<IConfiguration>();
             options.Url = configuration.GetConnectionString("Nats")!;
         })
-        .AddHandler<GameRecordMessageHandler>("gp.gamerecord.schedule.wgvia", "gp.gamerecord.schedule")
-        .AddHandler<GameRecordMessageHandler>("gp.gamerecord.manual.wgvia", "gp.gamerecord.manual");
+        .AddHandler<GameRecordMessageHandler>("gp.gamerecord.schedule.wgvia", "gp.gamerecord.schedule.wgvia")
+        .AddHandler<GameRecordMessageHandler>("gp.gamerecord.manual.wgvia", "gp.gamerecord.manual.wgvia");
     })
     .ClearAllExchanges()
     .AddNatsGlobPatternExchange("*");
