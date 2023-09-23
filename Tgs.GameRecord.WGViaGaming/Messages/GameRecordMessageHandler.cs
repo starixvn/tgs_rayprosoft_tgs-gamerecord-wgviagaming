@@ -2,8 +2,8 @@
 using System.Text.Json;
 using Tgs.GameRecord.WGViaGaming.Common;
 using Tgs.GameRecord.WGViaGaming.Core.ApplicationServices;
-using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
+using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.WGViaGaming.Messages;
 

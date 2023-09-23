@@ -28,10 +28,7 @@ public class PullRecordCommandServiceUnitTest
             fakeClient,
             fakeService);
 
-        await service
-            .ExecuteAsync(
-            command: command)
-            .ConfigureAwait(false);
+        await service.ExecuteAsync(command: command);
 
         _ = fakeClient
             .Received(1)
