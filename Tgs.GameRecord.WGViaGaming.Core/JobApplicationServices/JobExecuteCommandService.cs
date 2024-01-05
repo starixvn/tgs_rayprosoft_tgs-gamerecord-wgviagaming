@@ -8,34 +8,23 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
 
-internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
+internal class JobExecuteCommandService(
+    ILogger<JobExecuteCommandService> logger,
+    IOptions<GameRecordInfoOptions> options,
+    IMessageSender messageSender) : ICommandService<JobExecuteCommand>
 {
-    private readonly GameRecordInfoOptions _gameRecordInfo;
-    private readonly double _intervalDays;
-    private readonly ILogger<JobExecuteCommandService> _logger;
-    private readonly IMessageSender _messageSender;
-
-    public JobExecuteCommandService(
-        ILogger<JobExecuteCommandService> logger,
-        IOptions<GameRecordInfoOptions> options,
-        IMessageSender messageSender)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _gameRecordInfo = options.Value;
-        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-        _intervalDays = _gameRecordInfo.IntervalDaysMax < _gameRecordInfo.IntervalDays
-            ? _gameRecordInfo.IntervalDaysMax
-            : _gameRecordInfo.IntervalDaysMinimum > _gameRecordInfo.IntervalDays
-            ? _gameRecordInfo.IntervalDaysMinimum
-            : _gameRecordInfo.IntervalDays;
-    }
+    private readonly double _intervalDays = options.Value.IntervalDaysMax < options.Value.IntervalDays
+        ? options.Value.IntervalDaysMax
+        : options.Value.IntervalDaysMinimum > options.Value.IntervalDays
+        ? options.Value.IntervalDaysMinimum
+        : options.Value.IntervalDays;
 
     public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
     {
         var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\T00:00:00K"), @"yyyy-MM-dd\T00:00:00K", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
         var startTime = endTime.AddDays(_intervalDays * -1);
 
-        var parameters = new GameRecordMessage
+        var parameters = new WGViaGamingGameRecordMessage
         {
             ApiUrl = command.ApiUrl,
             PartnerCode = command.PartnerCode,
@@ -45,11 +34,10 @@ internal class JobExecuteCommandService : ICommandService<JobExecuteCommand>
             EndTime = endTime
         };
 
-        _logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
+        logger.LogDebug("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
 
-        return _messageSender
-            .PublishAsync(
-            subject: "gp.gamerecord.schedule.wgvia",
+        return messageSender.PublishAsync(
+            subject: WGViaGamingNatsConst.SchedulePublish,
             data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
             cancellationToken: cancellationToken);
     }

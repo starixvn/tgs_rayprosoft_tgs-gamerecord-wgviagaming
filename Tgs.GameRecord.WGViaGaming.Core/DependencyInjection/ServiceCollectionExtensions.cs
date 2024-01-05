@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using StackExchange.Redis;
 using Tgs.GameCommand.Client;
 using Tgs.GameInterface.WGViaGaming.Client;
 using Tgs.GameRecord.WGViaGaming.Core;
@@ -9,18 +10,16 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGameRecordCore(
        this IServiceCollection services,
-       Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
        Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
-       Action<GameInterfaceWGViaGamingClientOptions, IServiceProvider> gameInterfaceWGViaGamingClientOptions)
+       Action<GameInterfaceWGViaGamingClientOptions, IServiceProvider> gameInterfaceWGViaGamingClientOptions,
+       Func<IServiceProvider, IDatabase> redisDatabaseResolver)
         => services
-        .AddOptions<GameRecordInfoOptions>()
-        .Configure(gameRecordInfoOptions)
-        .Services
         .RegisterAllServiceUtilityTypes(
             Assembly.GetExecutingAssembly(),
             ServiceLifetime.Transient)
-        .AddGameRecordHandleClient()
         .AddGameCommandClient(gameCommandClientOptions)
         .AddGameInterfaceWGViaGamingClient(gameInterfaceWGViaGamingClientOptions)
-        .AddTransient<IHangfireUtensil, HangfireUtensil>();
+        .AddGameRecordHandleClient()
+        .AddTransient<IHangfireUtensil, HangfireUtensil>()
+        .AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)));
 }

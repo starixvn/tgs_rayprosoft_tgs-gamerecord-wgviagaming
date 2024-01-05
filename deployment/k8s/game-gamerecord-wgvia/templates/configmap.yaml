@@ -2,14 +2,16 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: configmap-{{ include "game-gamerecord-wgvia.name" . }}
-  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "game-gamerecord-wgvia.labels" . | nindent 4 }}
 data:
   appsettings.json: |
     {
       "Logging": {
-         "LogLevel": {
-          "Default": "Warning"
-          }
+        "LogLevel": {
+          "Default": "Warning",
+          "Tgs.GameRecord.WGViaGaming.Messages": "Information"
+        }
       },
       "GameRecord": {
         "GameCommandClientBaseUrl": "http://game-gamecommand/",

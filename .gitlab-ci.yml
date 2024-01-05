@@ -25,7 +25,7 @@ build-code:
     - main
   cache:
     key: $BuildCacheKey
-    untracked: true 
+    untracked: true
 
 unit-test:
   stage: test
@@ -59,7 +59,13 @@ push-docker-image:
     untracked: true   
     policy: pull
   script:
-    - dotnet build "Tgs.GameRecord.WGViaGaming/Tgs.GameRecord.WGViaGaming.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:$Tag" --no-restore
+    #- dotnet build "Tgs.GameRecord.WGViaGaming/Tgs.GameRecord.WGViaGaming.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:$Tag" --no-restore
+    - dotnet publish "Tgs.GameRecord.WGViaGaming" 
+       --os linux --arch x64
+       /t:PublishContainer
+       -c $BuildConfiguration
+       /p:ContainerRepository=$ImageName
+       /p:ContainerImageTag=$Tag
     - docker push $ImageName:$Tag
 
 push-k8s-template:

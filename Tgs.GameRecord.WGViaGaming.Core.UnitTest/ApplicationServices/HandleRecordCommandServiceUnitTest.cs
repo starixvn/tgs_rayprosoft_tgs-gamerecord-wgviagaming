@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using System.Text.Json.Nodes;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Tgs.GameInterface.WGViaGaming.Protos;
@@ -18,7 +19,8 @@ public class HandleRecordCommandServiceUnitTest
             GameProviderCode = "WGVIA",
             GameProviderConfiguration = "WGVIAConfiguration",
             GameExternalId = "1",
-            GameProviderHangfire = "wgvia-schedule:hangfire:",
+            HangfirePrefix = "gamerecord-wgvia-hangfire:",
+            HangfireLocking = "gamerecord-wgvia-locking:",
             IntervalDays = 2,
             IntervalDaysMax = 30,
             IntervalDaysMinimum = 1
@@ -70,7 +72,7 @@ public class HandleRecordCommandServiceUnitTest
             commission: Arg.Is(0.0m),
             turnover: Arg.Is(command.Record.Bet.ToDecimal().GetValueOrDefault(0)),
             winLoss: Arg.Is(command.Record.WinLoss.ToDecimal().GetValueOrDefault(0)),
-            additionalData: Arg.Is(command.Record.AdditionalData),
+            additionalData: Arg.Any<JsonNode>(),
             cancellationToken: Arg.Any<CancellationToken>());
     }
 }

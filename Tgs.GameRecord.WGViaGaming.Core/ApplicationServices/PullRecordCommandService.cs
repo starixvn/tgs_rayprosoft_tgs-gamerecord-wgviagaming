@@ -5,29 +5,19 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.WGViaGaming.Core.ApplicationServices;
 
-internal class PullRecordCommandService : ICommandService<PullRecordCommand>
+internal class PullRecordCommandService(
+    ILogger<PullRecordCommandService> logger,
+    IGameInterfaceWGViaGamingClient client,
+    ICommandService<HandleRecordCommand> service) : ICommandService<PullRecordCommand>
 {
-    private readonly IGameInterfaceWGViaGamingClient _client;
-    private readonly ILogger<PullRecordCommandService> _logger;
-    private readonly ICommandService<HandleRecordCommand> _service;
-
-    public PullRecordCommandService(
-        ILogger<PullRecordCommandService> logger,
-        IGameInterfaceWGViaGamingClient client,
-        ICommandService<HandleRecordCommand> service)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-    }
-
     public async ValueTask ExecuteAsync(PullRecordCommand command, CancellationToken cancellationToken = default)
     {
         var page = 1;
         var rows = 1000;
-        while (true)
+        IEnumerable<GameRecordInfo> gameRecords;
+        do
         {
-            var gameRecords = await _client.GameRecordAsync(
+            gameRecords = await client.GameRecordAsync(
                 apiUrl: command.ApiUrl,
                 partnerCode: command.PartnerCode,
                 secretKey: command.SecretKey,
@@ -42,28 +32,22 @@ internal class PullRecordCommandService : ICommandService<PullRecordCommand>
                 .ConfigureAwait(false)
                 ?? Enumerable.Empty<GameRecordInfo>();
 
-            if (!gameRecords.Any())
-            {
-                break;
-            }
-
-            page++;
-
             foreach (var gameRecord in gameRecords)
             {
                 try
                 {
-                    await _service
-                    .ExecuteAsync(
-                         command: new HandleRecordCommand(gameRecord),
-                         cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
+                    await service.ExecuteAsync(
+                        command: new HandleRecordCommand(gameRecord),
+                        cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "LogOn:{logOn} Message: An exception occurred in this game record.({gameRecord})", DateTime.Now.ToString("o"), gameRecord);
+                    logger.LogError(ex, "LogOn:{logOn} Message: An exception occurred in this game record.({gameRecord})", DateTime.Now.ToString("o"), gameRecord);
                 }
             }
-        }
+
+            page++;
+        } while (gameRecords.Any());
     }
 }
