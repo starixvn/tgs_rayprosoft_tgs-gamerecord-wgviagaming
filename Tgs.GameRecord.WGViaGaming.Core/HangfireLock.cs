@@ -6,10 +6,10 @@ using Tgs.GameRecord.WGViaGaming.Core;
 namespace Tgs.GameRecord.WGViaGaming.Core;
 
 internal class HangfireLock(
-    IOptions<GameRecordInfoOptions> gameWagersCheckingStringsOption,
+    IOptions<GameRecordInfoOptions> options,
     IDatabase database) : IHangfireLock
 {
-    private readonly GameRecordInfoOptions _gameWagersBrandStrings = gameWagersCheckingStringsOption.Value;
+    private readonly GameRecordInfoOptions _options = options.Value;
 
     public Task<bool> LockingAsync(string application, CancellationToken cancellationToken = default)
             => database.StringSetAsync(
@@ -24,5 +24,5 @@ internal class HangfireLock(
             when: When.NotExists);
 
     private string GetKey(string application)
-        => string.Concat(_gameWagersBrandStrings.HangfireLocking, application);
+        => string.Concat(_options.HangfireLocking, application);
 }
