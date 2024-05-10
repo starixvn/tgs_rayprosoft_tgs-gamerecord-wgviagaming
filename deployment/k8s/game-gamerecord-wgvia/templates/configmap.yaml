@@ -10,7 +10,8 @@ data:
       "Logging": {
         "LogLevel": {
           "Default": "Warning",
-          "Tgs.GameRecord.WGViaGaming.Messages": "Information"
+          "Tgs.GameRecord.WGViaGaming.Messages": "Information",
+          "Tgs.GameRecord.WGViaGaming.Core.ApplicationServices.HandleRecordCommandService": "Information"
         }
       },
       "GameRecord": {
