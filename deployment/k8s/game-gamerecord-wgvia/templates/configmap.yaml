@@ -10,8 +10,10 @@ data:
       "Logging": {
         "LogLevel": {
           "Default": "Warning",
-          "Tgs.GameRecord.WGViaGaming.Messages": "Information",
-          "Tgs.GameRecord.WGViaGaming.Core.ApplicationServices.HandleRecordCommandService": "Information"
+          "Grpc.Net.Client.Balancer": "Debug",
+          "Tgs.GameRecord.WGViaGaming.Messages.ManualMessageHandler": "Warning",
+          "Tgs.GameRecord.WGViaGaming.Messages.ScheduleMessageHandler": "Warning",
+          "Tgs.GameRecord.WGViaGaming.Core.ApplicationServices.HandleRecordCommandService": "Warning"
         }
       },
       "GameRecord": {
