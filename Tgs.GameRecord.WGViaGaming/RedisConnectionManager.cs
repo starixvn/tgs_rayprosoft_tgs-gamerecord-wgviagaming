@@ -2,7 +2,7 @@
 
 using StackExchange.Redis;
 
-namespace Tgs.GameRecord.Pinnacle;
+namespace Tgs.GameRecord.WGViaGaming;
 
 internal class RedisConnectionManager : IDisposable
 {
