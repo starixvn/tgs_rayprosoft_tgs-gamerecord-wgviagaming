@@ -1,6 +1,7 @@
-﻿using Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
+﻿using Tgs.GameRecord.WGViaGaming.Core;
+
+using Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
 using Tgs.ServiceUtility;
-using Tgs.GameRecord.WGViaGaming.Core;
 
 namespace Tgs.GameRecord.WGViaGaming.Repositories;
 
