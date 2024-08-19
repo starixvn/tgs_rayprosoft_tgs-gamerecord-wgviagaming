@@ -1,12 +1,13 @@
 ﻿using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Tgs.GameRecord.WGViaGaming.Core;
 
-namespace Tgs.GameRecord.WGViaGaming.Core;
+namespace Tgs.GameRecord.WGViaGaming.Repositories;
 
-internal class HangfireLock(
+internal class HangfireLockRepository(
 	IOptions<GameRecordInfoOptions> options,
-	IDatabase database) : IHangfireLock
+	IDatabase database) : IHangfireLockRepository
 {
 	private readonly GameRecordInfoOptions _options = options.Value;
 

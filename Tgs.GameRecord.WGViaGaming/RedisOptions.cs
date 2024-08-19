@@ -1,4 +1,4 @@
-﻿namespace Tgs.GameRecord.Pinnacle;
+﻿namespace Tgs.GameRecord.WGViaGaming;
 
 public record RedisOptions
 {

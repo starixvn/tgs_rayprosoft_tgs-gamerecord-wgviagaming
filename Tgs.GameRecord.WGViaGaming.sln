@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.WGViaGaming.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.WGViaGaming.Core.UnitTest", "Tgs.GameRecord.WGViaGaming.Core.UnitTest\Tgs.GameRecord.WGViaGaming.Core.UnitTest.csproj", "{E0A2DF1F-DD26-44FD-99FD-B3795E856308}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.WGViaGaming.Common", "Tgs.GameRecord.WGViaGaming.Common\Tgs.GameRecord.WGViaGaming.Common.csproj", "{49380BE4-BEC5-4407-ACCB-E372E21FE52E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.WGViaGaming.Common", "Tgs.GameRecord.WGViaGaming.Common\Tgs.GameRecord.WGViaGaming.Common.csproj", "{49380BE4-BEC5-4407-ACCB-E372E21FE52E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.WGViaGaming.Repositories", "Tgs.GameRecord.WGViaGaming.Repositories\Tgs.GameRecord.WGViaGaming.Repositories.csproj", "{3D3F97DB-0E14-4B5D-9F71-92470DA31019}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{49380BE4-BEC5-4407-ACCB-E372E21FE52E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49380BE4-BEC5-4407-ACCB-E372E21FE52E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49380BE4-BEC5-4407-ACCB-E372E21FE52E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D3F97DB-0E14-4B5D-9F71-92470DA31019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D3F97DB-0E14-4B5D-9F71-92470DA31019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D3F97DB-0E14-4B5D-9F71-92470DA31019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D3F97DB-0E14-4B5D-9F71-92470DA31019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
