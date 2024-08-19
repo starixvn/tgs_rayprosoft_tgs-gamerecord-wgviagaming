@@ -16,19 +16,4 @@ public static class ServiceRegisterExtensions
 
 		return app;
 	}
-
-	public static async Task<WebApplication> UseRegisterAsync(this WebApplication app)
-	{
-		using (var scope = app.Services.CreateScope())
-		{
-			var client = scope.ServiceProvider.GetRequiredService<IGameInterfaceWGViaGamingClient>();
-
-			_ = await client
-				.CheckingServiceAsync(
-				machineName: Environment.MachineName)
-				.ConfigureAwait(false);
-		}
-
-		return app;
-	}
 }
