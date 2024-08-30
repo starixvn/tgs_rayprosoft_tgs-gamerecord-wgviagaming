@@ -22,7 +22,7 @@ public class WGViaGamingController : ControllerBase
 		WGViaGamingGameRecordMessage source)
 		=> messageSender.PublishAsync(
 			subject: WGViaGamingNatsConst.ManualPublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			data: JsonSerializer.SerializeToUtf8Bytes(source),
 			cancellationToken: HttpContext.RequestAborted);
 
 	/// <summary>
@@ -37,6 +37,6 @@ public class WGViaGamingController : ControllerBase
 		WGViaGamingGameRecordMessage source)
 		=> messageSender.PublishAsync(
 			subject: WGViaGamingNatsConst.SchedulePublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			data: JsonSerializer.SerializeToUtf8Bytes(source),
 			cancellationToken: HttpContext.RequestAborted);
 }
