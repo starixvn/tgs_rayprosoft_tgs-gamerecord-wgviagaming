@@ -11,6 +11,7 @@ namespace Tgs.GameRecord.WGViaGaming.Core.JobApplicationServices;
 internal class JobExecuteCommandService(
 	ILogger<JobExecuteCommandService> logger,
 	IOptions<GameRecordInfoOptions> options,
+	TimeProvider timeProvider,
 	IMessageSender messageSender) : ICommandService<JobExecuteCommand>
 {
 	private readonly double _intervalDays = options.Value.IntervalDaysMax < options.Value.IntervalDays
@@ -21,10 +22,11 @@ internal class JobExecuteCommandService(
 
 	public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
 	{
-		var endTime = DateTimeOffset.ParseExact(DateTimeOffset.UtcNow.ToString(@"yyyy-MM-dd\T00:00:00K"), @"yyyy-MM-dd\T00:00:00K", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
+		var currentTime = timeProvider.GetUtcNow();
+		var endTime = DateTimeOffset.ParseExact(currentTime.ToString(@"yyyy-MM-dd\T00:00:00K"), @"yyyy-MM-dd\T00:00:00K", null, styles: System.Globalization.DateTimeStyles.RoundtripKind);
 		var startTime = endTime.AddDays(_intervalDays * -1);
 
-		var parameters = new WGViaGamingGameRecordMessage
+		var message = new WGViaGamingGameRecordMessage
 		{
 			ApiUrl = command.ApiUrl,
 			PartnerCode = command.PartnerCode,
@@ -34,11 +36,26 @@ internal class JobExecuteCommandService(
 			EndTime = endTime
 		};
 
-		logger.LogDebug("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
+		logger.LogInformation("{logInformation}",
+			JsonSerializer.Serialize(new
+			{
+				LogOn = DateTime.Now.ToString("u"),
+				Subject = WGViaGamingNatsConst.SchedulePublish,
+				Data = new
+				{
+					command.ApiUrl,
+					command.PartnerCode,
+					command.SecretKey,
+					command.SecretIV,
+					StartTime = message.StartTime.ToString("u"),
+					EndTime = message.EndTime.ToString("u")
+				},
+				Message = "This message publishing handler."
+			}));
 
 		return messageSender.PublishAsync(
 			subject: WGViaGamingNatsConst.SchedulePublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
+			data: JsonSerializer.SerializeToUtf8Bytes(message),
 			cancellationToken: cancellationToken);
 	}
 }
